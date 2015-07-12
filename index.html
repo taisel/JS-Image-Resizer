@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Resize.js Demo</title>
+		<script src="./resize.js"></script>
+		<script>
+			function process_data() {
+				var elementHandle = document.createElement("canvas");
+				var contextHandle = elementHandle.getContext("2d");
+				var source = document.getElementById("source");
+				elementHandle.width = 500;
+				elementHandle.height = 500;
+				contextHandle.drawImage(source, 0, 0, source.width, source.height, 0, 0, source.width, source.height);
+				var dataToScale = contextHandle.getImageData(0, 0, source.width, source.height).data;
+				//down_context2d
+				elementHandle = document.getElementById("down_context2d");
+				contextHandle = elementHandle.getContext("2d");
+				elementHandle.width = 150;
+				elementHandle.height = 150;
+				contextHandle.drawImage(source, 0, 0, source.width, source.height, 0, 0, 150, 150);
+				//down_context2d_small
+				elementHandle = document.getElementById("down_context2d_small");
+				contextHandle = elementHandle.getContext("2d");
+				elementHandle.width = 50;
+				elementHandle.height = 50;
+				contextHandle.drawImage(source, 0, 0, source.width, source.height, 0, 0, 50, 50);
+				//down_resize
+				elementHandle = document.getElementById("down_resize");
+				var contextHandle0 = elementHandle.getContext("2d");
+				elementHandle.width = 150;
+				elementHandle.height = 150;
+				var resized0 = new Resize(source.width, source.height, 150, 150, true, true, false, function (buffer) {
+					updateCanvas(contextHandle0, contextHandle0.createImageData(150, 150), buffer);
+				});
+				resized0.resize(dataToScale);
+				//down_resize_small
+				elementHandle = document.getElementById("down_resize_small");
+				var contextHandle1 = elementHandle.getContext("2d");
+				elementHandle.width = 50;
+				elementHandle.height = 50;
+				var resized1 = new Resize(source.width, source.height, 50, 50, true, true, false, function (buffer) {
+					updateCanvas(contextHandle1, contextHandle1.createImageData(50, 50), buffer);
+				});
+				resized1.resize(dataToScale);
+				//up_context2d
+				elementHandle = document.getElementById("up_context2d");
+				contextHandle = elementHandle.getContext("2d");
+				elementHandle.width = 1000;
+				elementHandle.height = 1000;
+				contextHandle.drawImage(source, 0, 0, source.width, source.height, 0, 0, 1000, 1000);
+				//up_resize
+				elementHandle = document.getElementById("up_resize");
+				var contextHandle2 = elementHandle.getContext("2d");
+				elementHandle.width = 1000;
+				elementHandle.height = 1000;
+				var resized2 = new Resize(source.width, source.height, 1000, 1000, true, true, false, function (buffer) {
+					updateCanvas(contextHandle2, contextHandle2.createImageData(1000, 1000), buffer);
+				});
+				resized2.resize(dataToScale);
+				//up_resize_crisp
+				elementHandle = document.getElementById("up_resize_crisp");
+				var contextHandle3 = elementHandle.getContext("2d");
+				elementHandle.width = 1000;
+				elementHandle.height = 1000;
+				var resized3 = new Resize(source.width, source.height, 1000, 1000, true, false, false, function (buffer) {
+					updateCanvas(contextHandle3, contextHandle3.createImageData(1000, 1000), buffer);
+				});
+				resized3.resize(dataToScale);
+			}
+			function updateCanvas(contextHandlePassed, imageBuffer, frameBuffer) {
+				var data = imageBuffer.data;
+				var length = data.length;
+				for (var x = 0; x < length; ++x) {
+					data[x] = frameBuffer[x] & 0xFF;
+				}
+				contextHandlePassed.putImageData(imageBuffer, 0, 0);
+			}
+		</script>
+	</head>
+	<body>
+		<h3>Original Image:</h3>
+		<img src="./flower.png" id="source" onload="process_data();">
+		<br>
+		<h3>Downscaling With Context2d:</h3>
+		<canvas id="down_context2d"></canvas>
+		<canvas id="down_context2d_small"></canvas>
+		<br>
+		<h3>Downscaling With Resize.js:</h3>
+		<canvas id="down_resize"></canvas>
+		<canvas id="down_resize_small"></canvas>
+		<br>
+		<h3>Upscaling With Context2d:</h3>
+		<canvas id="up_context2d"></canvas>
+		<br>
+		<h3>Upscaling With Resize.js:</h3>
+		<canvas id="up_resize"></canvas>
+		<br>
+		<h3>Upscaling With Resize.js (Crisp):</h3>
+		<canvas id="up_resize_crisp"></canvas>
+		<br>
+	</body>
+</html>
